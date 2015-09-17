@@ -16,9 +16,10 @@ Usage:
 usage: query_clones.py [-h] [--sequence] clone_names output
 
 positional arguments:
-  clone_names  name of a clone to search for in NCBI
-  output       tab-delimited output of clone name/accession pairs OR sequence
-               corresponding to clone names
+  clone_names  text file containing names of clones to search for in NCBI (one
+               name per line)
+  output       tab-delimited output of clone name/accession pairs OR FASTA
+               sequence corresponding to clone names
 
 optional arguments:
   -h, --help   show this help message and exit
