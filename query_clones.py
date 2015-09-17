@@ -99,8 +99,8 @@ def download_sequences(nucleotide_ids):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("clone_names", help="name of a clone to search for in NCBI")
-    parser.add_argument("output", help="tab-delimited output of clone name/accession pairs OR sequence corresponding to clone names")
+    parser.add_argument("clone_names", help="text file containing names of clones to search for in NCBI (one name per line)")
+    parser.add_argument("output", help="tab-delimited output of clone name/accession pairs OR FASTA sequence corresponding to clone names")
     parser.add_argument("--sequence", action="store_true", help="download sequence corresponding to clone names instead of returning accessions")
     args = parser.parse_args()
 
