@@ -3,6 +3,8 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import math
+import operator
+import re
 
 
 def make_windows(length, window, slide):
@@ -37,8 +39,7 @@ def make_windows(length, window, slide):
 
 
 def fragment_sequence(sequence, window, slide=0):
-    """
-    Fragment a given sequence to the requested window length without a slide.
+    """Fragment a given sequence to the requested window length without a slide.
 
     >>> fragment_sequence("ACTGACTG", 4, 0)
     ['ACTG', 'ACTG']
@@ -53,15 +54,36 @@ def fragment_sequence(sequence, window, slide=0):
     ['ACTG', 'TGAC', 'ACTG']
     >>> fragment_sequence("ACTGACTG", 5, 2)
     ['ACTGA', 'TGACT', 'ACTG']
+
+    Remove gap bases from input sequence and return the longest non-gap
+    fragment. Don't return any sequence if the entire input is gap bases.
+
+    >>> fragment_sequence("NNNNNNNN", 4, 2)
+    []
+    >>> fragment_sequence("ACTGNNNN", 4, 2)
+    ['ACTG']
+    >>> fragment_sequence("ACTGNNTA", 4, 2)
+    ['ACTG']
+    >>> fragment_sequence("ACNNACTA", 4, 2)
+    ['ACTA']
     """
-    sequence_length = len(sequence)
-    if sequence_length > window:
-        # Split sequence into two or more reads of the given length.
-        window_ranges = make_windows(sequence_length, window, slide)
-        sequences = [sequence[start:end] for start, end in window_ranges]
-    else:
-        # Output the sequence as is.
-        sequences = [sequence]
+    # Check sequence for gap bases and keep the longest of the non-gap pieces in
+    # the sequence.
+    sequences = []
+    sequence_pieces = [(piece, len(piece)) for piece in re.split("N+", sequence) if len(piece) > 0]
+
+    if len(sequence_pieces) > 0:
+        sorted_sequence_pieces = sorted(sequence_pieces, key=operator.itemgetter(1), reverse=True)
+        sequence = sorted_sequence_pieces[0][0]
+        sequence_length = sorted_sequence_pieces[0][1]
+
+        if sequence_length > window:
+            # Split sequence into two or more reads of the given length.
+            window_ranges = make_windows(sequence_length, window, slide)
+            sequences = [sequence[start:end] for start, end in window_ranges]
+        else:
+            # Output the sequence as is.
+            sequences = [sequence]
 
     return sequences
 
