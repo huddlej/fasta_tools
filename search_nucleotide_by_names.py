@@ -130,7 +130,6 @@ if __name__ == "__main__":
                     if clone in pair[0]:
                         accession_found = True
                         writer.writerow((clone, pair[1]))
-                        break
 
                 # Let the user know if the clone name didn't have an accession.
                 if not accession_found:
