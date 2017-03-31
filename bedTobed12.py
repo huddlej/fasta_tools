@@ -1,7 +1,23 @@
 #!/bin/env python
+import argparse
 import csv
-import pprint
-import sys
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+# create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+ch.setFormatter(formatter)
+
+# add ch to logger
+logger.addHandler(ch)
 
 CHROMOSOME=0
 START=1
@@ -10,7 +26,7 @@ FEATURE=3
 STRAND=5
 
 
-def bed_to_bed12(filename):
+def bed_to_bed12(filename, ignore_strand):
     """
     Convert a BED file to a BED12 file for each feature in the BED file across
     an entire chromosome.
@@ -25,13 +41,13 @@ def bed_to_bed12(filename):
     with open(filename, "r") as fh:
         reader = csv.reader(fh, delimiter="\t")
         for row in reader:
-            if len(row) > STRAND - 1:
+            if not ignore_strand and len(row) > STRAND - 1:
                 strand = row[STRAND]
             else:
                 strand = "+"
 
             feature_strand=";".join((row[FEATURE], strand))
-            blocks_by_chromosome.setdefault(row[CHROMOSOME], {}).setdefault(feature_strand, []).append(map(int, row[START:END+1]))
+            blocks_by_chromosome.setdefault(row[CHROMOSOME], {}).setdefault(feature_strand, []).append(list(map(int, row[START:END+1])))
 
     # Print a line for each set of blocks per chromosome/feature combination.
     score = 0
@@ -50,8 +66,13 @@ def bed_to_bed12(filename):
                 block_sizes = [end - start]
                 block_starts = [0]
 
-            print "\t".join(map(str, [chromosome, start, end, feature, score, strand, start, end, color, len(block_sizes), ",".join(map(str, block_sizes)), ",".join(map(str, block_starts))]))
+            print("\t".join(map(str, [chromosome, start, end, feature, score, strand, start, end, color, len(block_sizes), ",".join(map(str, block_sizes)), ",".join(map(str, block_starts))])))
 
 
 if __name__ == "__main__":
-    bed_to_bed12(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_bed")
+    parser.add_argument("--ignore_strand", action="store_true")
+    args = parser.parse_args()
+
+    bed_to_bed12(args.input_bed, ignore_strand=args.ignore_strand)

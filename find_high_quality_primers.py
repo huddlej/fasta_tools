@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # Get sequences associated with high-quality primers, group sequences by
     # site id with both primers on the same line, and save.
     high_quality_primer_sequences = high_quality_primers.merge(primers, how="left", on=("site_id", "primer_number"))
-    high_quality_primer_sequences_by_site = high_quality_primer_sequences.pivot_table("primer_sequence", index=["site_id"], columns=["primer_orientation"], aggfunc=lambda x: x)
+    high_quality_primer_sequences_by_site = high_quality_primer_sequences.pivot("site_id", "primer_orientation", "primer_sequence")
     high_quality_primer_sequences_by_site.to_csv(args.high_quality_primers, sep="\t", index=True, header=True)
 
     # Find sites with high-quality primers.

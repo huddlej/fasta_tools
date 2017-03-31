@@ -15,7 +15,7 @@ def find_gaps(input_filename):
 
         for i in xrange(len(record)):
             if sequence[i].upper() == "N":
-                print "\t".join(map(str, (record.id, i, i + 1)))
+                print("\t".join(map(str, (record.id, i, i + 1))))
 
 
 if __name__ == "__main__":
